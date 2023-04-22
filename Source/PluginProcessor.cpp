@@ -8,6 +8,7 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include <fftw3.h>
 
 //==============================================================================
 FftPassthroughAudioProcessor::FftPassthroughAudioProcessor()
