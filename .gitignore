@@ -1,2 +1,4 @@
 JuceLibraryCode/
 Builds/MacOSX/build
+Builds/MacOSX/FftPassthrough.xcodeproj/xcuserdata/
+Builds/MacOSX/FftPassthrough.xcodeproj/project.xcworkspace/xcuserdata/
