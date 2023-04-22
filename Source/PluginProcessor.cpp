@@ -99,9 +99,9 @@ void FftPassthroughAudioProcessor::prepareToPlay (double sampleRate, int samples
     
     cBufferPointer = 0;
     hopCounter = 0;
-    cBuffer = std::vector<float>(CBUFFER_SIZE);
+    cBuffer = new float[CBUFFER_SIZE];
     for (int i=0; i<CBUFFER_SIZE; i++) {
-        cBuffer[i] = 0;
+        cBuffer[i] = 0.0;
     }
 }
 

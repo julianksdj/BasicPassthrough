@@ -69,7 +69,7 @@ private:
     float currentSampleRate;
     
     // circular buffer
-    std::vector<float> cBuffer;
+    float* cBuffer;
     int cBufferPointer;
     int hopCounter;
     
