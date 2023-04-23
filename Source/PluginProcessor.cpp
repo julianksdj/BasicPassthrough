@@ -97,11 +97,18 @@ void FftPassthroughAudioProcessor::prepareToPlay (double sampleRate, int samples
     currentBufferSize = (float) samplesPerBlock;
     currentSampleRate = sampleRate;
     
-    cBufferPointer = 0;
+    inBufferPointer = 0;
     hopCounter = 0;
-    cBuffer = new float[CBUFFER_SIZE];
+    inBuffer = new float[CBUFFER_SIZE];
     for (int i=0; i<CBUFFER_SIZE; i++) {
-        cBuffer[i] = 0.0;
+        inBuffer[i] = 0.0;
+    }
+    
+    outWritePointer = FFT_SIZE;
+    outReadPointer = 0;
+    outBuffer = new float[CBUFFER_SIZE];
+    for (int i=0; i<CBUFFER_SIZE; i++) {
+        inBuffer[i] = 0.0;
     }
 }
 
@@ -140,20 +147,31 @@ bool FftPassthroughAudioProcessor::isBusesLayoutSupported (const BusesLayout& la
 void FftPassthroughAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     juce::ScopedNoDenormals noDenormals;
-    auto totalNumInputChannels  = getTotalNumInputChannels();
-    auto totalNumOutputChannels = getTotalNumOutputChannels();
+    //auto totalNumInputChannels  = getTotalNumInputChannels();
+    //auto totalNumOutputChannels = getTotalNumOutputChannels();
 
     auto* channelData = buffer.getWritePointer (0);
     for (int i=0; i<currentBufferSize; i++) {
-        cBuffer[cBufferPointer] = channelData[i];
-        cBufferPointer++;
-        if (cBufferPointer >= CBUFFER_SIZE) {
-            cBufferPointer = 0;
+        
+        // store juce input signal into input buffer
+        inBuffer[inBufferPointer] = channelData[i];
+        inBufferPointer++;
+        if (inBufferPointer >= CBUFFER_SIZE) {
+            inBufferPointer = 0;
         }
         hopCounter++;
+        
+        // do spectral processing
         if (hopCounter >= HOP_SIZE) {
             hopCounter = 0;
             processFft();
+        }
+        
+        // read outBuffer (processed signal) and write to juce buffer
+        channelData[i] = outBuffer[outReadPointer];
+        outReadPointer++;
+        if (outReadPointer >= CBUFFER_SIZE) {
+            outReadPointer = 0;
         }
 
     }
@@ -193,12 +211,14 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 }
 
 void FftPassthroughAudioProcessor::processFft() {
-    int readIndex = cBufferPointer - FFT_SIZE;
+    
+    // unwrap input circular buffer
+    int readIndex = inBufferPointer - FFT_SIZE;
     if (readIndex < 0) {
         readIndex += CBUFFER_SIZE;
     }
     for (int i=0; i<FFT_SIZE; i++) {
-        inFft[i] = cBuffer[readIndex];
+        inFft[i] = inBuffer[readIndex];
         readIndex++;
         if (readIndex >= CBUFFER_SIZE) {
             readIndex = 0;
@@ -206,9 +226,20 @@ void FftPassthroughAudioProcessor::processFft() {
     }
     
     computeFft(FFT_SIZE, inFft, outFft);
+    // spectral processing start ------------------------
+    
+    // spectral processing end --------------------------
     computeIfft(FFT_SIZE, outFft, outIfft);
     
-    //DBG("call ifft");
+    // store outIfft into outBuffer
+    for (int i=0; i<FFT_SIZE; i++) {
+        outBuffer[outWritePointer] = outIfft[i] / 500.0;
+        outWritePointer++;
+        if (outWritePointer >= CBUFFER_SIZE) {
+            outWritePointer = 0;
+        }
+    }
+    
 }
 
 

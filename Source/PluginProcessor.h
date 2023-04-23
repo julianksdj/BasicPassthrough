@@ -74,10 +74,15 @@ private:
     float currentBufferSize;
     float currentSampleRate;
     
-    // circular buffer
-    float* cBuffer;
-    int cBufferPointer;
+    // circular input buffer
+    float* inBuffer;
+    int inBufferPointer;
     int hopCounter;
+    
+    // circular output buffer
+    float* outBuffer;
+    int outWritePointer;
+    int outReadPointer;
     
     float* inFft = new float[FFT_SIZE];
     std::complex<float>* outFft = new std::complex<float>[FFT_SIZE];
