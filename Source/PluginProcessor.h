@@ -79,6 +79,10 @@ private:
     int cBufferPointer;
     int hopCounter;
     
+    float* inFft = new float[FFT_SIZE];
+    std::complex<float>* outFft = new std::complex<float>[FFT_SIZE];
+    float* outIfft = new float[FFT_SIZE];
+    
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FftPassthroughAudioProcessor)
 };

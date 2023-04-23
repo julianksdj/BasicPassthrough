@@ -193,7 +193,6 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 }
 
 void FftPassthroughAudioProcessor::processFft() {
-    float* inFft = new float[FFT_SIZE];
     int readIndex = cBufferPointer - FFT_SIZE;
     if (readIndex < 0) {
         readIndex += CBUFFER_SIZE;
@@ -205,7 +204,11 @@ void FftPassthroughAudioProcessor::processFft() {
             readIndex = 0;
         }
     }
-    DBG("Call FFT");
+    
+    computeFft(FFT_SIZE, inFft, outFft);
+    computeIfft(FFT_SIZE, outFft, outIfft);
+    
+    //DBG("call ifft");
 }
 
 
