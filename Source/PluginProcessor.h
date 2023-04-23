@@ -9,6 +9,7 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include <complex>
 
 // fft defines
 #define FFT_SIZE 1024
@@ -63,6 +64,11 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
+    void computeFft(int bufferSize, float* input, std::complex<float>* output);
+    void computeIfft(int bufferSize, std::complex<float>* input, float* output);
+    
+    void processFft();
+    
 private:
     
     float currentBufferSize;

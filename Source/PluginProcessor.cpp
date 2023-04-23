@@ -150,6 +150,11 @@ void FftPassthroughAudioProcessor::processBlock (juce::AudioBuffer<float>& buffe
         if (cBufferPointer >= CBUFFER_SIZE) {
             cBufferPointer = 0;
         }
+        hopCounter++;
+        if (hopCounter >= HOP_SIZE) {
+            hopCounter = 0;
+            processFft();
+        }
 
     }
     
@@ -185,4 +190,87 @@ void FftPassthroughAudioProcessor::setStateInformation (const void* data, int si
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new FftPassthroughAudioProcessor();
+}
+
+void FftPassthroughAudioProcessor::processFft() {
+    float* inFft = new float[FFT_SIZE];
+    int readIndex = cBufferPointer - FFT_SIZE;
+    if (readIndex < 0) {
+        readIndex += CBUFFER_SIZE;
+    }
+    for (int i=0; i<FFT_SIZE; i++) {
+        inFft[i] = cBuffer[readIndex];
+        readIndex++;
+        if (readIndex >= CBUFFER_SIZE) {
+            readIndex = 0;
+        }
+    }
+    DBG("Call FFT");
+}
+
+
+void FftPassthroughAudioProcessor::computeFft(int bufferSize, float* input, std::complex<float>* output) {
+    double* in;
+    fftw_complex* out;
+    fftw_plan p;
+    
+    // allocate mem for in
+    in = (double*) fftw_malloc(sizeof(double) * bufferSize);
+    // copy input to in
+    for (int i=0; i<bufferSize; i++) {
+        in[i] = (double) input[i];
+    }
+    //calculate out size
+    //int n_out = ((bufferSize/2)+1);
+    // allocate mem for out
+    out = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * bufferSize);
+    
+    //plan fft
+    p = fftw_plan_dft_r2c_1d(bufferSize, in, out, FFTW_ESTIMATE);
+    //perform fft
+    fftw_execute(p); /* repeat as needed */
+
+    //copy result to output
+    for (int i=0; i<bufferSize; i++) {
+        output[i].real(out[i][0]);
+        output[i].imag(out[i][1]);
+    }
+    
+    // free resources
+    fftw_destroy_plan(p);
+    fftw_free(out);
+    fftw_free(in);
+}
+
+void FftPassthroughAudioProcessor::computeIfft(int bufferSize, std::complex<float>* input, float* output) {
+    double* out;
+    fftw_complex* in;
+    fftw_plan p;
+    
+    //calculate in size
+    //int n_in = ((bufferSize/2)+1);
+    // allocate mem for in
+    in = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * bufferSize);
+    // copy input to in
+    for (int i=0; i<bufferSize; i++) {
+        in[i][0] = input[i].real();
+        in[i][1] = input[i].imag();
+    }
+    // allocate mem for out
+    out = (double*) fftw_malloc(sizeof(double) * bufferSize);
+    
+    //plan ifft
+    p = fftw_plan_dft_c2r_1d(bufferSize, in, out, FFTW_ESTIMATE);
+    //perform fft
+    fftw_execute(p); /* repeat as needed */
+    
+    // copy result to output
+    for (int i=0; i<bufferSize; i++) {
+        output[i] = (float) out[i];
+    }
+    
+    // free resources
+    fftw_destroy_plan(p);
+    fftw_free(in);
+    fftw_free(out);
 }
