@@ -12,7 +12,7 @@
 #include <complex>
 
 // fft defines
-#define FFT_SIZE 1024
+#define FFT_SIZE 2048
 #define HOP_SIZE 128
 
 // circular buffer defines
