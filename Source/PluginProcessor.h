@@ -76,7 +76,8 @@ private:
     
     // circular input buffer
     float* inBuffer;
-    int inBufferPointer;
+    int inWritePointer;
+    int inReadPointer;
     int hopCounter;
     
     // circular output buffer
