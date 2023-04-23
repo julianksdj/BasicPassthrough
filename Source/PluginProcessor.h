@@ -13,10 +13,10 @@
 
 // fft defines
 #define FFT_SIZE 1024
-#define HOP_SIZE 512
+#define HOP_SIZE 128
 
 // circular buffer defines
-#define CBUFFER_SIZE 16384
+#define CBUFFER_SIZE 2048
 
 //==============================================================================
 /**

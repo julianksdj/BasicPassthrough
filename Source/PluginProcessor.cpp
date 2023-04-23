@@ -105,7 +105,7 @@ void FftPassthroughAudioProcessor::prepareToPlay (double sampleRate, int samples
         inBuffer[i] = 0.0;
     }
     
-    outWritePointer = FFT_SIZE;
+    outWritePointer = HOP_SIZE;
     outReadPointer = 0;
     outBuffer = new float[CBUFFER_SIZE];
     for (int i=0; i<CBUFFER_SIZE; i++) {
