@@ -8,3 +8,5 @@
  For the FFT and IFFT operations, fftw3 library is used. fftw3 binary and header files are included inside the project.
  
  FFTW is a C subroutine library for computing the discrete Fourier transform (DFT) in one or more dimensions, of arbitrary input size, and of both real and complex data. The FFTW package was developed at MIT by Matteo Frigo and Steven G. Johnson. More info: https://www.fftw.org/
+ 
+ For more complex processing, you can use the following project, which additionally performs an overlap-add operation: https://github.com/julianksdj/OverlapAdd
